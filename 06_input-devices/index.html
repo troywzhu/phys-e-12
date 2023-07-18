@@ -44,7 +44,8 @@
     I initially followed the class's tutorial on creating a Tx-Rx (transmitter-receiver) IR device, as well as the previous student example from Silvia. The circuit I created is pictured here:
     </p>
 
-    <p><img src="../pics/[picture-name].jpeg" width="150" height="121">
+    <p>
+        <img src="../pics/[picture-name].jpeg" width="150" height="121">
 
     Interestingly, although the naked human eye cannot detect IR light, the light <i>can</i> can be detected through a smartphone camera, 
     which at times assisted with debugging.
@@ -66,21 +67,22 @@
     </p>
 </div>
 
+<div>
     <h2>Ultrasonic Distance Sensor</h2>
 
     <img src="https://cdn.sparkfun.com/r/300-300/assets/parts/1/1/6/6/8/13959-01a.jpg">
 
-    <div>
         <p>
         Next I experimented with the ultrasonic distance sensor, HC-SR04. I followed 
-        <a href="https://learn.sparkfun.com/tutorials/sparkfun-inventors-kit-experiment-guide---v40/circuit-3b-distance-sensor">this guide</a> 
+        <a href="https://learn.sparkfun.com/tutorials/sparkfun-inventors-kit-experiment-guide---v40/circuit-3b-distance-sensor"> this guide</a> 
         from Sparkfun to familiarize myself with its functionality and how to get it up and running. The distance sensor
         operates as a Tx-Rx device by both sending and receiving ultrasonic signals through a speaker and microphone. By calculating
         the time difference between the pulses, we can determine the distance of an object by halving the bounce time and multiplying by
         the speed of sound. I measured the inputs using the serial monitor's print statements and a ruler to make sure the two were in alignment. 
         The sensor appears faulty at extremely short distances under 3 inches. The signal is also imperfect and vulnerable to minor fluctuations,
         of signal noise. Even when the sensor is at rest, When an object was measured to be 60 inches away, the sensor would read values within
-        the ranges of 59.57 to 60.73, so that the margin of inaccuracy is around 1 inch.</p>
+        the ranges of 59.57 to 60.73, so that the margin of inaccuracy is around 1 inch.
+    </p>
         
 
 
