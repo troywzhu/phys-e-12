@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<title>PHYS-S-12: Intro to Digital Fabrication </title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="../style.css" rel="stylesheet">
+
+
+<nav class="navbar navbar-expand-sm navbar-light bg-light">
+  <div style="align-items: left; justify-content:left;" class="container-fluid">
+    <h3 class="nav-title"> PHYS-S-12: Intro to Digital Fabrication</h3>
+    <div class="navbar-nav">
+      <h4></h4>
+      <h4><a class="nav-link" href="../index.html">Home</a></h4>
+      <h4><a class="nav-link" href="../about.html">About</a></h4>
+    </div>
+  </div>
+</nav>
+
+<body>
+
+
+<xmp style="display:none;">
+<br> 
+
+<h1>Week 7: Output Devices</h1>
+
+<h2>Ultrasonic LED Servo</h2>
+
+<br>
+
+<div>
+  <p>
+    This week I began experimenting with using both LED strips and a servo motor as my output device.
+    For this purpose I utilized Adafruit's NeoPixel Library and a great introductory guide that can
+    be found <a href="https://learn.adafruit.com/adafruit-neopixel-uberguide/arduino-library-use">here</a>.
+    I initially began my experiment with my input devices being an infrared sensor combined with a TV remote 
+    control. I combined these so that every time I pressed a button on the remote control, when this signal
+    was detected it would prompt the LED to begin lighting. I also experimented with using an infrared LED 
+    transmitter so that I could modulate the strength of the signal. I then programmed it to alter the lighting
+    color depending on the strength of the signal.
+  </p>
+
+  <p>
+    For the next iteration of my input-output device, I attached the HC-SR04 ultrasonic distance sensor to be my
+    input tranmission, and I combined a servo motor with the LED strip to be a dual output device. This aligns with
+    the goals of my final project where I will be combining proximity motion detection that simultaneously activates
+    both lighting and mechanical motion for a series of lanterns. 
+  </p>
+
+  <p>
+    I used two different mapping functions to translate data from the proximity sensor into degrees of motion and 
+    hues of color for the servo motor and LED strip respectively. Attention was given to prevent the servo motor 
+    from attempting to continue moving past its maximum range of motion to prevent burning out its engine. Mapping 
+    the distances from the sensor into a spectrum color hues proved a challenging task that took a while to decipher.
+    Because of the multiple ways that NeoPixel stores color values in differing formats, from HSV data, to packed RGB codes.
+    Then, having to apply a gamma correction filter to make the colors perceptually accurate to the human eye, created
+    an extra layer of difficulty. It took a while to figure this out, as I also needed to make sure the coding for the HSV
+    colors ranged from red to blue, instead of looping back towards red once the colors reached the ultraviolet spectrum.
+  </p>
+
+  <p>
+    Engineering the circuit this way enabled me to create a much greater range of analog feedback through my output devices,
+    rather than having a narrow or minimal responsiveness. Creating a nearly instantaneous integration between the input and output 
+    creates a more seamless user experience. I aim to continue refining this, so that it will enhance the overall aesthetic experience 
+    of the final product.
+    </p>
+
+    <br>
+    <p>
+        This is a <a href="./code.html">link</a> to the code for this assignment, where we also utilized principles of Object Oriented Programming to create
+        classes for the multiple components of our device, which allows us to avoid using the delay() function that delays the 
+        processing speed of the entire microcontroller. 
+    </p>
+    
+
+
+</div>
+
+</xmp>
+</body>
+
+<script src="../strapdown.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
+
+</html>
