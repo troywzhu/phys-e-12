@@ -134,6 +134,25 @@ The rotation without lights attached.<br>
 
 The project code: <a href="code.html">Link</a>
 
+<h2>Issues</h2>
+<br><h3>Code</h3><p>
+One of the biggest problems encountered while coding the project is related to the pulse sensors
+activating the lights. To reduce signal noise, pulses are only counted as detected when they 
+reach above a certain threshold. However for some reason when the lights began to be triggered
+for the first time, this would set off an infinite loop within the circuitry, and the serial 
+outputs stated that the pulse sensors were continually sending a maximal signal as output. </p>
+<p>
+    Due to the intentionally limited nature of the PulseSensorPlayground library, there was no easy
+    way to trouble shoot this issue. Additionally, the library API only allowed one to set a minimal
+    threshold, but not a maximal one. Therefore I had to manually create my own custom function 
+    to approximate a max threshold detector. It would ignore any signal if it was near the maximum allowed,
+    but this created a necessary delay in the system that prevented seamless synchronization between the 
+    the heartbeat sensor and the LEDs. In addition, this also prevented the two different light streams from
+    being activated simultaneously.  
+    </p>
+
+    <h3>Perfectionism, or Anti-Prototyping</h3>
+
 
 <h2>Conclusion</h2>
 <br><img src="FINAL.gif" width="400" height="400"><br><br><div>
