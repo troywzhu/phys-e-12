@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<title>PHYS-S-12: Intro to Digital Fabrication </title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="../style.css" rel="stylesheet">
+
+
+<nav class="navbar navbar-expand-sm navbar-light bg-light">
+  <div style="align-items: left; justify-content:left;" class="container-fluid">
+    <h3 class="nav-title"> PHYS-S-12: Intro to Digital Fabrication</h3>
+    <div class="navbar-nav">
+      <h4></h4>
+      <h4><a class="nav-link" href="../index.html">Home</a></h4>
+      <h4><a class="nav-link" href="../about.html">About</a></h4>
+    </div>
+  </div>
+</nav>
+
+<body>
+
+
+<xmp style="display:none;">
+<br> 
+
+<h1>Week 4: Microcontrollers</h1>
+
+<h2>Dual Heartbeat Sensors + OLED Display</h2>
+
+<div>
+    <p>
+        As part of the core functionality that would be part of my final project, I needed to
+        combine the input read from two heartbeat sensors and translate this into a realtime
+        display on an OLED screen. For this purpose I was aided by two pre-existing libraries
+        I was able to combine together: PulseSensorPlayground, and Adafruit_SSD1306. 
+    </p>
+
+    <p>
+        By storing the two heartbeat values in a two element array, I was able to use this 
+        data structure to then read the integers. I created two custom functions. One
+        printed to the serial monitor when heartbeats occurred, and the second displayed
+        the two BPM readings on the OLED display side by side. By reading through the 
+        documentation for the OLED, I gathered the graphics were displayed using a pixel 
+        grid, and spent some time adjusting the values to have them shown in a centered 
+        position that improved their readability. 
+    </p>
+
+    <p>
+        Although both pulse sensors were placed on a single hand, errors and deviations in the signal 
+        processing made the two inputs unequal. 
+    </p>
+
+    <video width="320" height="240" controls class="center">
+        <source src="IMG_0.MOV" type="video/mp4">
+      Your browser does not support the video tag.
+      </video>
+
+      <br><br>
+
+The code is posted below:
+
+<br><br>
+
+<pre><code>
+#define USE_ARDUINO_INTERRUPTS true
+#include PulseSensorPlayground.h 
+#include SPI.h
+#include Wire.h
+#include Adafruit_GFX.h
+#include Adafruit_SSD1306.h
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+const int OUTPUT_TYPE = SERIAL_PLOTTER;
+const int PULSE_SENSOR_COUNT = 2;
+const int PULSE_INPUT0 = A0;
+const int PULSE_INPUT1 = A1;
+const int THRESHOLD0 = 550;  
+const int THRESHOLD1 = 550; 
+
+
+PulseSensorPlayground pulseSensor(PULSE_SENSOR_COUNT);
+
+// Store Two Users Heartbeats Per Minute read from sensor
+int BPMs[2] = {0, 0};
+
+
+void setup() {
+ 
+  Serial.begin(250000);
+
+  pulseSensor.analogInput(PULSE_INPUT0, 0);
+  pulseSensor.setThreshold(THRESHOLD0, 0);
+
+  pulseSensor.analogInput(PULSE_INPUT1, 1);
+  pulseSensor.setThreshold(THRESHOLD1, 1);
+
+  pulseSensor.setSerial(Serial);
+  pulseSensor.setOutputType(OUTPUT_TYPE);
+
+  // Clear the buffer
+  display.clearDisplay();
+
+  // Now that everything is ready, start reading the PulseSensor signal.
+  if (!pulseSensor.begin()) {
+
+    for (;;) {
+    }
+  }
+
+    if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  }
+
+  display.display();
+  delay(2000); // Pause for 2 seconds
+}
+
+void loop() {
+  // pulseSensor.outputSample();
+
+  for (int i = 0; i < PULSE_SENSOR_COUNT; ++i) {
+    if (pulseSensor.sawStartOfBeat(i)) {
+      pulseSensor.outputBeat(i);
+
+    }
+
+   BPMs[i] = pulseSensor.getBeatsPerMinute(i);  // Calls function on our pulseSensor object that returns BPM as an "int".
+                                               // "BPMs" hold this BPM value now. 
+     printHeartbeat(i, BPMs[i]);
+     BPM_Display();
+  }
+}
+
+void printHeartbeat(int heartBeatNumber, int userBPM){
+   Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
+   Serial.print("Pulse #: ");                        // Print phrase "BPM: " 
+   Serial.println(heartBeatNumber+1);
+   Serial.print("BPM: ");                        // Print phrase "BPM: " 
+   Serial.println(userBPM);                        // Print the value inside of myBPM. 
+}
+
+
+void BPM_Display(void) {
+  display.clearDisplay();
+
+  display.setTextSize(2); // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(45, 0);
+  display.print(F("BPM"));
+  display.setCursor(26, 18);
+
+  display.print(BPMs[0]);
+  display.print(F(" | "));
+  display.print(BPMs[1]);
+
+  display.display();      // Show initial text
+}
+</pre></code>
+
+
+</div>
+
+</xmp>
+</body>
+
+<script src="../strapdown.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" ></script>
+
+</html>
