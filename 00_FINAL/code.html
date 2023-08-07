@@ -1,0 +1,234 @@
+<pre><code>
+#define USE_ARDUINO_INTERRUPTS true
+#include <PulseSensorPlayground.h>
+#include <Adafruit_NeoPixel.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+const int OUTPUT_TYPE = SERIAL_PLOTTER;
+const int PULSE_SENSOR_COUNT = 2;
+
+const int PULSE_INPUT0 = A0;
+const int PULSE_INPUT1 = A1;
+
+const int THRESHOLD0 = 600; 
+const int THRESHOLD1 = 600; 
+
+#define LED1 10
+#define LED2 11
+#define LED3 12
+#define LED4 13
+
+#define LED_COUNT 17
+#define STRIP_COUNT 4
+
+Adafruit_NeoPixel strip(LED_COUNT, LED1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip2(LED_COUNT, LED2, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip3(9, LED3, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip4(9, LED4, NEO_GRB + NEO_KHZ800);
+
+Adafruit_NeoPixel mystrips[] = {strip, strip2, strip3, strip4};
+
+// uint32_t RED =   strip.Color(255,   0,   0);
+// uint32_t GREEN = strip.Color(0,   255,   0);
+// uint32_t BLUE =  strip.Color(0,   0,   255);
+// uint32_t OFF =   strip.Color(0,   0,   0);
+
+int wait = 10;
+
+int BPMs[2] = {0, 0};
+// int BPMdiff; 
+
+PulseSensorPlayground pulseSensor(PULSE_SENSOR_COUNT);
+
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+#define LOGO_HEIGHT   16
+#define LOGO_WIDTH    16
+
+void setup() {
+
+  // Serial.begin(115200);
+    Serial.begin(250000);
+
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  // if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+  //   Serial.println(F("SSD1306 allocation failed"));
+  //   for(;;); // Don't proceed, loop forever
+  // }
+
+  // Clear the buffer
+  display.clearDisplay();
+  display.display();
+
+
+  for (int i = 0; i < STRIP_COUNT; i++){
+  mystrips[i].clear();
+  mystrips[i].begin();
+  mystrips[i].show();            // Turn OFF all pixels ASAP
+  mystrips[i].setBrightness(25); // Set BRIGHTNESS to about 1/5 (max = 255)
+  }
+  // Configure the PulseSensor manager.
+
+  pulseSensor.analogInput(PULSE_INPUT0, 0);
+  pulseSensor.analogInput(PULSE_INPUT1, 1);
+  pulseSensor.setThreshold(THRESHOLD0, 0);
+  pulseSensor.setThreshold(THRESHOLD1, 1);
+  pulseSensor.setSerial(Serial);
+  pulseSensor.setOutputType(OUTPUT_TYPE);
+
+  pulseSensor.begin();
+
+}
+
+void loop() {
+
+
+  for (int i = 0; i < PULSE_SENSOR_COUNT; ++i) {
+  if (pulseSensor.sawStartOfBeat(i)) {
+      pulseSensor.outputSample();
+
+   pulseSensor.outputBeat(i);
+
+  if(analogRead(PULSE_INPUT0) > 950 || analogRead(PULSE_INPUT1) > 950){
+    continue;
+  }
+
+   BPMs[i] = pulseSensor.getBeatsPerMinute(i);  // Calls function on our pulseSensor object that returns BPM as an "int".
+                                               // "myBPM" hold this BPM value now. 
+
+
+
+  //   simultaneous(RED, wait, 0, 2);
+  //   simultaneous(OFF, wait, 0, 2); 
+  
+  // else if(i == 1){
+  //   simultaneous(BLUE, wait, 1, 3) ;
+  //   simultaneous(OFF, wait, 1, 3) ;
+  // if(i == 0){
+  //   simultaneous(RED, wait, 0, 2);
+  //   simultaneous(OFF, wait, 0, 2); 
+  // }
+  // else if(i == 1){
+  //   simultaneous(BLUE, wait, 1, 3) ;
+  //   simultaneous(OFF, wait, 1, 3) ;
+  // } 
+    //  printHeartbeat(i, BPMs[i]);
+  //  BPM_Display();
+  // }
+  }
+
+//   BPMdiff = abs(BPMs[0] - BPMs[1]);
+// if (BPMdiff > 40){
+//   BPMdiff = 40;
+// }
+// int newBrightness = map(BPMdiff,40, 0, 1, 255);
+// for (int i = 0; i < STRIP_COUNT; i++){
+//   mystrips[i].setBrightness(newBrightness); // Set BRIGHTNESS to about 1/5 (max = 255)
+//   }
+  
+
+// sweep(RED, 10);
+// sweep(GREEN, 10);
+// sweep(BLUE, 10);
+// sweep(OFF, 10);
+// rainbow(10);
+// strip2.rainbow(10);
+// strip3.rainbow(10);
+// strip4.rainbow(10);
+}
+}
+
+void colorWipe(uint32_t color, int wait, Adafruit_NeoPixel &stripname) {
+  for(int i=0; i<stripname.numPixels(); i++) { // For each pixel in strip...
+    stripname.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    stripname.show();                          //  Update strip to match
+    delay(wait);                           //  Pause for a moment
+  }
+}
+
+
+void simultaneous(uint32_t color, int wait,int firstStrip, int secondStrip) {
+  
+  for(int i=0; i<LED_COUNT; i++) { // For each pixel in strip...
+   mystrips[firstStrip].setPixelColor(i, color);         //  Set pixel's color (in RAM)
+   mystrips[secondStrip].setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    mystrips[firstStrip].show();                          //  Update strip to match
+    mystrips[secondStrip].show();                          //  Update strip to match
+
+    delay(wait);          
+    }                 //  Pause for a moment
+}
+
+
+
+void printHeartbeat(int heartBeatNumber, int userBPM){
+   Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
+   Serial.print("Pulse #: ");                        // Print phrase "BPM: " 
+   Serial.println(heartBeatNumber+1);
+   Serial.print("BPM: ");                        // Print phrase "BPM: " 
+   Serial.println(userBPM);                        // Print the value inside of myBPM. 
+}
+
+
+void BPM_Display(void) {
+  display.clearDisplay();
+
+  display.setTextSize(2); // Draw 2X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(45, 0);
+  display.print(F("BPM"));
+  display.setCursor(26, 18);
+
+  display.print(BPMs[0]);
+  display.print(F(" | "));
+  display.print(BPMs[1]);
+
+  display.display();      // Show initial text
+}
+
+void sweep(uint32_t color, int wait) {
+  
+  for(int i=0; i<LED_COUNT; i++) { // For each pixel in strip...
+  for(int j=0; j<STRIP_COUNT; j++){
+    mystrips[j].setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    mystrips[j].show();                          //  Update strip to match
+    delay(wait);          
+    }                 //  Pause for a moment
+  }
+}
+
+// void rainbow(int wait) {
+//   // Hue of first pixel runs 5 complete loops through the color wheel.
+//   // Color wheel has a range of 65536 but it's OK if we roll over, so
+//   // just count from 0 to 5*65536. Adding 256 to firstPixelHue each time
+//   // means we'll make 5*65536/256 = 1280 passes through this loop:
+//   for(long firstPixelHue = 0; firstPixelHue < 5*65536; firstPixelHue += 100) {
+//     // strip.rainbow() can take a single argument (first pixel hue) or
+//     // optionally a few extras: number of rainbow repetitions (default 1),
+//     // saturation and value (brightness) (both 0-255, similar to the
+//     // ColorHSV() function, default 255), and a true/false flag for whether
+//     // to apply gamma correction to provide 'truer' colors (default true).
+//     strip.rainbow(firstPixelHue);
+//     strip2.rainbow(firstPixelHue);
+//     strip3.rainbow(firstPixelHue);
+//     strip4.rainbow(firstPixelHue);
+//     // Above line is equivalent to:
+//     // strip.rainbow(firstPixelHue, 1, 255, 255, true);
+//     strip.show(); // Update strip with new contents
+//     strip2.show();
+//     strip3.show();
+//     strip4.show();
+
+//     delay(wait);  // Pause for a moment
+//   }
+// }
+</pre></code>
